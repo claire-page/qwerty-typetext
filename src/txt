@@ -1,3 +1,6 @@
 
 
         --module-path C:\Users\clair\Desktop\javajavajava\javafx-sdk-26\lib --add-modules javafx.controls,javafx.fxml
+
+        password=Qs3al97-2ab
+        url=jdbc:mysql://localhost:3306/qwertydb

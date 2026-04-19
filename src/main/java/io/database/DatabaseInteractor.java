@@ -1,15 +1,11 @@
 package io.database;
 
-import controllers.Control;
 import core.RunData;
 
-import java.io.FileInputStream;
-import java.io.IOException;
 import java.sql.*;
-import java.text.DecimalFormat;
-import java.time.Instant;
+
 import java.util.ArrayList;
-import java.util.Arrays;
+
 import java.util.List;
 import java.util.Properties;
 
@@ -20,12 +16,10 @@ public class DatabaseInteractor {
     public DatabaseInteractor(Runnable errorDisplay){
         this.onError = errorDisplay;
 
-        Properties properties = new Properties();
         try {
-            properties.load(new FileInputStream("db.properties"));
 
-                 this.connection = DriverManager.getConnection( properties.getProperty("url"),  "root", properties.getProperty("password") );
-            } catch (IOException | SQLException e) {
+                 this.connection = DriverManager.getConnection( System.getenv("url"),  "qwertyUser", System.getenv("password") );
+            } catch (SQLException e) {
 
                 this.connection = null; //setting connection to null, so we can handle it.
 
@@ -33,7 +27,6 @@ public class DatabaseInteractor {
     }
 
     public void sendData(RunData runData){
-
 
         try {
 
