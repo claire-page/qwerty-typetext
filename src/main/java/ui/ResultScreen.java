@@ -39,6 +39,7 @@ public class ResultScreen implements Builder<Parent> {
             titletext.setPadding(new Insets(50, 0, 0, 30));
             titletext.setAlignment(Pos.BASELINE_LEFT);
 
+        table = new HBox();
 
         updateTable();
 
@@ -57,16 +58,13 @@ public class ResultScreen implements Builder<Parent> {
         }
 
         public static void updateTable(){
-
-
-
-        table = new HBox();
+        table.getChildren().removeAll(table.getChildren());
             var columns = new VBox[]{new VBox(new Label("time")),
                     new VBox(new Label("name")),
                     new VBox(new Label("words/min")),
                     new VBox(new Label("keys typed/second")),
                     new VBox(new Label("mistakes"))};
-            try{
+
                 var data = dataSupplier.get();
                 for (List<String> e: data){
                     for (int i = 0; i < e.size(); i++){
@@ -81,12 +79,7 @@ public class ResultScreen implements Builder<Parent> {
                     table.setSpacing(20);
                 });
 
-            } catch (RuntimeException e) {
-                Label errorLabel = new Label("Whoops. Could not access the database to view results. Try again later?");
-                errorLabel.setTextFill(Style.lightred);
-                errorLabel.setFont(Style.FontFaces.CONSOLAS);
-                table.getChildren().add(errorLabel);
             }
         }
-}
+
 

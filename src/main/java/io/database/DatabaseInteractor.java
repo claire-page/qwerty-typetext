@@ -17,7 +17,6 @@ public class DatabaseInteractor {
         this.onError = errorDisplay;
 
         try {
-
                  this.connection = DriverManager.getConnection( System.getenv("url"),  "qwertyUser", System.getenv("password") );
             } catch (SQLException e) {
 

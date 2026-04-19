@@ -59,7 +59,7 @@ public class Control {
                 actual = (actual.length() == 0) ? "" : actual.substring(0, actual.length() - 1);
 
                 //is it a character/punctuation?
-            } else if (e.getEventType() == KeyEvent.KEY_TYPED && e.getCharacter().matches("[a-zA-Z\\s\\p{P}]")) {
+            } else if (e.getEventType() == KeyEvent.KEY_TYPED && e.getCharacter().matches("[a-zA-Z\\s\\h{P}]")) {
                 actual += e.getCharacter(); //add character to the user string.
                 run.logKeyStroke();
             }
