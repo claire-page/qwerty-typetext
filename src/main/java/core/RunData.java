@@ -1,8 +1,5 @@
 package core;
 
-import java.math.BigDecimal;
-import java.util.Date;
-import java.util.List;
 
 //going to send this to the database...
 //controller will make a record from values it can access, and sends it to the db.

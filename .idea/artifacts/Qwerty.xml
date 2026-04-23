@@ -3,7 +3,7 @@
     <output-path>$PROJECT_DIR$/out/artifacts/Qwerty</output-path>
     <root id="root">
       <element id="archive" name="lab_starter.jar">
-        <element id="module-output" name="lab-starter" />
+        <element id="module-output" name="typetext" />
       </element>
     </root>
   </artifact>

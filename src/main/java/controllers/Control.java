@@ -4,14 +4,15 @@ import core.RunData;
 import core.RunTracker;
 
 import core.TextToType;
+import io.database.DBControl;
 import io.database.DatabaseInteractor;
 
+import io.database.QueryFilter;
 import javafx.scene.control.Alert;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import core.TypeChar;
 import ui.MainView;
-import ui.MenuBuilder;
 import ui.ResultScreen;
 
 import java.util.ArrayList;
@@ -26,9 +27,9 @@ public class Control {
     private static final DatabaseInteractor db = new DatabaseInteractor(Control::displayDBAlert);
 
     public Control() {
-        this.run = new RunTracker();
-        this.expected = TextToType.getRandomtxt();
-        this.actual = "";
+        run = new RunTracker();
+        expected = TextToType.getRandomtxt();
+        actual = "";
 
     }
 
@@ -56,7 +57,7 @@ public class Control {
                 run.logBackspace();
                 run.logKeyStroke();
                 //making sure we're not "going off the edge" before clipping the user string
-                actual = (actual.length() == 0) ? "" : actual.substring(0, actual.length() - 1);
+                actual = (actual.isEmpty()) ? "" : actual.substring(0, actual.length() - 1);
 
                 //is it a character/punctuation?
             } else if (e.getEventType() == KeyEvent.KEY_TYPED && e.getCharacter().matches("[a-zA-Z\\s\\h{P}]")) {
@@ -88,7 +89,6 @@ public class Control {
         }
     }
 
-
     public static List<TypeChar> generateTextData(String template, String actual) {
         var textInfo = new ArrayList<TypeChar>(); //starting off as an ArrayList
         for (int j = 0; j < template.length(); j++) {
@@ -104,26 +104,37 @@ public class Control {
     /// these functions deal with interacting with a DatabaseInteractor object we use to access a database.
 
     public static RunData getDataToSend(double time, Optional<String> result, RunTracker tracker) {
-        String name = (result.isPresent()) ? result.get() : "Milkshake";
-
+        String name = result.orElse("Milkshake");
         return (new RunData(time, name, tracker.getKeystrokes(), tracker.getBacktracks(), expected.split(" ").length, expected.length()));
     }
 
+    /**
+     *
+     * @param name -> name to query for.
+     * @param selectedFilter -> data filter applied by user on the toggle group in the results view screen.
+     */
+    public static void applyFilters(String name, QueryFilter selectedFilter){
+        DBControl.setInteractorSQLString(name, selectedFilter, 10);
+    }
+
+    public static void displayDBAlert() {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.contentTextProperty().set("error connecting to the database. try again...another time...maybe....");
+        alert.showAndWait();
+    }
 
     /**
-     * provides formatted strings containing data displayed in the "table"
-     * in the Results View.
-     *
-     * @return
+     * provides formatted strings containing data retrieved from RunData records.
+     * for use by the Result Screen, mainly.
+     * @return List of List of Strings.
      */
-    public List<List<String>> getEntriesasStrings() {
+    public static List<List<String>> stringifyRunData(List<RunData> rawRunData) {
 
-        var dbData = this.db.retrieveLastNEntries(10); //number of rows comfortably supported by window size.
-        var all = new ArrayList();
+        var all = new ArrayList<List<String>>();
 
-        for (RunData entry : dbData) {
+        for (RunData entry : rawRunData) {
 
-            ArrayList alist = new ArrayList<>();
+            ArrayList<String> alist = new ArrayList<>();
             alist.add(String.valueOf(entry.time()));
             alist.add(entry.name());
             alist.add(String.valueOf(entry.getWordsPerMinute()));
@@ -136,13 +147,7 @@ public class Control {
     }
 
 
-    public static void displayDBAlert() {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.contentTextProperty().set("error connecting to the database. try again...another time...maybe....");
-        alert.showAndWait();
-    }
-
-    /// //////////////////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * function for rendering the pane in the view based on the current state of the model.
@@ -155,7 +160,6 @@ public class Control {
         var data = generateTextData(expected, actual);
         MainView.renderTextData(data, expected);
     }
-
     public void resetSameRun() {
         run = new RunTracker();
         actual = "";
@@ -164,22 +168,23 @@ public class Control {
     }
 
     public void resetNewRun() {
-        this.run = new RunTracker();
-        this.actual = "";
-        var oldtxt = this.expected;
+        run = new RunTracker();
+        actual = "";
+        var oldtxt = expected;
 
         while (true) {
             //making sure the new text is different.
             var newtxt = TextToType.getRandomtxt();
 
             if (!oldtxt.equals(newtxt)) {
-                this.expected = newtxt;
+               expected = newtxt;
                 break;
             }
         }
         drawPane();
         MainView.resetTimer();
     }
+
 ////////////////////////////////////////////////////////////////////////////////
 }
 

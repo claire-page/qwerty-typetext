@@ -6,9 +6,7 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.util.Builder;
-import javafx.event.EventHandler;
-import java.awt.*;
-import java.util.stream.Stream;
+
 import javafx.scene.control.Button;
 
 

@@ -1,22 +1,25 @@
 package ui;
 
 import controllers.Control;
+import io.database.DBControl;
+import io.database.QueryFilter;
 import javafx.scene.Parent;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.util.Builder;
-import java.util.*;
 
 //TODO- TEST!!!
 public class BasicLayoutBuilder implements Builder<Parent> {
 
     static Control control;
+    static DBControl dbControl;
     static Region results;
     static Region main;
 
-    public BasicLayoutBuilder(Control ctrl){
+    public BasicLayoutBuilder(Control ctrl, DBControl dbControl){
         this.control = ctrl;
+        this.dbControl = dbControl;
 
     }
 
@@ -43,7 +46,7 @@ public class BasicLayoutBuilder implements Builder<Parent> {
 
         StackPane stack = new StackPane();
         this.main = new MainView(control::drawPane, control::resetNewRun,  control::resetSameRun).build();
-        this.results = new ResultScreen(control::getEntriesasStrings, BasicLayoutBuilder::showMain).build();
+        this.results = new ResultScreen(() -> Control.stringifyRunData(DBControl.getEntries()), BasicLayoutBuilder::showMain).build();
         stack.getChildren().addAll(results, main);
         stack.requestLayout();
         bp.setLeft(left);
