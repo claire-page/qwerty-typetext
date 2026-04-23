@@ -21,6 +21,8 @@ import static javafx.scene.text.Font.font;
 
 public class ResultScreen implements Builder<Parent> {
 
+//    public boolean isResultsActive;
+
     static Supplier<List<List<String>>> dataSupplier; //this is the function that gets called to retrieve the data.
     static Runnable backtoMain;
     static HBox table;
@@ -29,10 +31,12 @@ public class ResultScreen implements Builder<Parent> {
     boolean nameProvided;
 
     //this will initialize the screen. Note that I only want it available when game is done.
-    public ResultScreen(Supplier<List<List<String>>> dataSupply, Runnable backtoMain){
-        this.dataSupplier = dataSupply;
-        this.backtoMain = backtoMain;
+    public ResultScreen(Supplier<List<List<String>>> dataSupply, Runnable returnToMain){
+        dataSupplier = dataSupply;
+        backtoMain = returnToMain;
     }
+
+
     @Override
     public Region build() {
 
@@ -48,17 +52,23 @@ public class ResultScreen implements Builder<Parent> {
         ToggleGroup filtertoggles = new ToggleGroup();
 
 
-        ToggleButton defaultFilterBtn = new ToggleButton("Most Recent");
-        defaultFilterBtn.setUserData(QueryFilter.noFilters);
-
         ToggleButton timeFilterBtn = new ToggleButton("Run time");
         timeFilterBtn.setUserData(QueryFilter.runTime);
 
+        TextField nameInput = new TextField();
+        nameInput.setPromptText("Filter by name");
+        nameInput.setPrefSize(100, 20);
+
         ToggleButton wpmFilterBtn = new ToggleButton("Words / minute");
         wpmFilterBtn.setUserData(QueryFilter.runWPM);
+        wpmFilterBtn.setBackground(Background.fill(Style.menuBkgrndPaint));
 
         ToggleButton cpsFilterBtn = new ToggleButton("Characters/ second");
         cpsFilterBtn.setUserData(QueryFilter.runCPM);
+        wpmFilterBtn.setBackground(Background.fill(Style.menuBkgrndPaint));
+
+        ToggleButton defaultFilterBtn = new ToggleButton("Most Recent");
+        defaultFilterBtn.setUserData(QueryFilter.noFilters);
 
         defaultFilterBtn.setToggleGroup(filtertoggles);
         timeFilterBtn.setToggleGroup(filtertoggles);
@@ -68,11 +78,10 @@ public class ResultScreen implements Builder<Parent> {
         defaultFilterBtn.setSelected(true);
         System.out.println(filtertoggles.getSelectedToggle());
 
-        TextArea nameInput = new TextArea("Filter by name");
-        nameInput.setPrefSize(100, 20);
-        Button applyFilterBtn = new Button("APPLY FILTERS");
 
-        filterBox.getChildren().addAll(defaultFilterBtn, timeFilterBtn, wpmFilterBtn, cpsFilterBtn, nameInput, applyFilterBtn);
+        Button applyFilterBtn = new Button("APPLY");
+
+        filterBox.getChildren().addAll( timeFilterBtn, nameInput, wpmFilterBtn, cpsFilterBtn, defaultFilterBtn, applyFilterBtn);
         filterBox.setSpacing(10);
 
         applyFilterBtn.setOnMouseClicked(e -> Control.applyFilters(nameInput.getText(), (QueryFilter)filtertoggles.getSelectedToggle().getUserData()));

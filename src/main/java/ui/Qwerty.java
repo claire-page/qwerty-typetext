@@ -19,7 +19,7 @@ public class Qwerty extends Application {
     public void start(Stage stage) throws Exception {
 
         Control controller = new Control(); //instantiating controller.
-        DBControl dbControl = new DBControl(new DatabaseInteractor(Control::displayDBAlert));
+        DBControl dbControl = new DBControl();
 
         //the return value of basicLayoutBuilder.build() returns a BorderPane,
         // but it's also being declared here as a Parent.

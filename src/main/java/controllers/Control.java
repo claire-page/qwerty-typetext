@@ -1,5 +1,6 @@
 package controllers;
 
+import com.sun.tools.javac.Main;
 import core.RunData;
 import core.RunTracker;
 
@@ -15,6 +16,7 @@ import core.TypeChar;
 import ui.MainView;
 import ui.ResultScreen;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +26,6 @@ public class Control {
     private static String expected;
     private static String actual;
     private RunData endData; //only exists if
-    private static final DatabaseInteractor db = new DatabaseInteractor(Control::displayDBAlert);
 
     public Control() {
         run = new RunTracker();
@@ -40,8 +41,13 @@ public class Control {
      * @param e Keyevent
      */
     public void delegateKeyEvents(KeyEvent e) {
-        e.consume(); //consuming the event. yum.
 
+        //checking if main is active. Otherwise, we don't need to be triggering this.
+        // this allows other input fields to receive KeyEvents!
+
+        if (getMainStatus()){
+
+        e.consume(); //consuming the event. yum.
         //only dealing with key pressed + typed events to avoid duplicates, bc
         //multiple events are triggered by a key press (pressed/typed/released),
         if (e.getEventType().equals(KeyEvent.KEY_PRESSED) || e.getEventType().equals(KeyEvent.KEY_TYPED)) {
@@ -60,7 +66,7 @@ public class Control {
                 actual = (actual.isEmpty()) ? "" : actual.substring(0, actual.length() - 1);
 
                 //is it a character/punctuation?
-            } else if (e.getEventType() == KeyEvent.KEY_TYPED && e.getCharacter().matches("[a-zA-Z\\s\\h{P}]")) {
+            } else if (e.getEventType() == KeyEvent.KEY_TYPED && e.getCharacter().matches("[a-zA-Z\\s\\h\\p{P}]")) {
                 actual += e.getCharacter(); //add character to the user string.
                 run.logKeyStroke();
             }
@@ -76,8 +82,8 @@ public class Control {
                 endData = getDataToSend(finaltime, maybeString, run); //gathering data.
 
                 //testing if the connection is available to send data to..
-                if (db.isConnectionValid()) {
-                    db.sendData(endData);
+                if (DBControl.isConnectionValid()) {
+                    DBControl.passDataToInteractor(endData);
                 } else {
                     displayDBAlert();
                 }
@@ -86,7 +92,8 @@ public class Control {
                 //so when the user gets back from the popup, they already have a new run loaded!
             }
 
-        }
+        }}
+
     }
 
     public static List<TypeChar> generateTextData(String template, String actual) {
@@ -110,11 +117,12 @@ public class Control {
 
     /**
      *
-     * @param name -> name to query for.
+     * @param name           -> name to query for.
      * @param selectedFilter -> data filter applied by user on the toggle group in the results view screen.
      */
-    public static void applyFilters(String name, QueryFilter selectedFilter){
-        DBControl.setInteractorSQLString(name, selectedFilter, 10);
+    public static void applyFilters(String name, QueryFilter selectedFilter) {
+        DBControl.setInteractorSQLString(name, selectedFilter);
+        ResultScreen.updateTable();
     }
 
     public static void displayDBAlert() {
@@ -126,19 +134,21 @@ public class Control {
     /**
      * provides formatted strings containing data retrieved from RunData records.
      * for use by the Result Screen, mainly.
-     * @return List of List of Strings.
+     *
+     * @return List of Lists of Strings.
      */
     public static List<List<String>> stringifyRunData(List<RunData> rawRunData) {
 
         var all = new ArrayList<List<String>>();
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
 
         for (RunData entry : rawRunData) {
 
             ArrayList<String> alist = new ArrayList<>();
-            alist.add(String.valueOf(entry.time()));
+            alist.add(String.valueOf(decimalFormat.format(entry.time())));
             alist.add(entry.name());
-            alist.add(String.valueOf(entry.getWordsPerMinute()));
-            alist.add(String.valueOf(entry.getCharsPerSecond()));
+            alist.add(String.valueOf(decimalFormat.format(entry.getWordsPerMinute())));
+            alist.add(String.valueOf(decimalFormat.format(entry.getCharsPerSecond())));
             alist.add(String.valueOf(entry.getFaults()));
 
             all.add(alist.stream().toList());
@@ -160,6 +170,7 @@ public class Control {
         var data = generateTextData(expected, actual);
         MainView.renderTextData(data, expected);
     }
+
     public void resetSameRun() {
         run = new RunTracker();
         actual = "";
@@ -177,7 +188,7 @@ public class Control {
             var newtxt = TextToType.getRandomtxt();
 
             if (!oldtxt.equals(newtxt)) {
-               expected = newtxt;
+                expected = newtxt;
                 break;
             }
         }
@@ -185,10 +196,18 @@ public class Control {
         MainView.resetTimer();
     }
 
-////////////////////////////////////////////////////////////////////////////////
+
+    /// /////////////////////////////////////////////////////////////////////////////
+
+    public void setMainStatus(boolean b) {
+        MainView.setStatus(b);
+    }
+
+    public boolean getMainStatus(){
+        return(MainView.isMainActive);
+    }
+
 }
-
-
 
 
 

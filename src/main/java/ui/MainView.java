@@ -19,6 +19,8 @@ import java.util.Optional;
 import static javafx.scene.text.Font.font;
 
 public class MainView implements Builder<Region> {
+
+    public static boolean isMainActive;
     private static CustomTimer timer;
     private static FlowPane pane;
     private static Label timerDisplay;
@@ -34,6 +36,7 @@ public class MainView implements Builder<Region> {
         this.paneInitializer = paneInitializer;
         this.runResetter = forButton1;
         this.runRestarter = forButton2;
+        this.isMainActive = true;
     }
 
     /**
@@ -58,7 +61,7 @@ public class MainView implements Builder<Region> {
         line.setPrefWidth(750);
         line.setPrefHeight(40);
 
-        this.pane = new FlowPane();
+        pane = new FlowPane();
         pane.setPrefSize(200, 300);
         pane.setPadding(new Insets(5));
         pane.setBackground(Background.fill(Style.textBkgrndPaint));//getting text pane...
@@ -206,6 +209,9 @@ public class MainView implements Builder<Region> {
     }
 
 
+    public static void setStatus(boolean b){
+        isMainActive = b;
+    }
 }
 
 

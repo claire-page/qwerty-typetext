@@ -6,6 +6,7 @@ module typetext {
     requires javafx.base;
     requires javafx.controls;
     requires javafx.graphics;
+    requires jdk.compiler;
 
     exports ui to javafx.graphics, javafx.controls;
     exports io.database to java.sql;

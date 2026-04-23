@@ -13,13 +13,12 @@ public class DatabaseInteractor {
    Runnable onError;
 
    private String executableSQL;
-
-
     public DatabaseInteractor(Runnable errorDisplay){
         this.onError = errorDisplay;
-        this.executableSQL = DBControl.buildQuery("", QueryFilter.noFilters, 10);
+        this.executableSQL = DBControl.buildQuery("", QueryFilter.noFilters);
 
-        try { this.connection = DriverManager.getConnection( System.getenv("url"),  "qwertyUser", System.getenv("password") );
+        try { this.connection = DriverManager.getConnection(System.getenv("url"),  "qwertyUser", System.getenv("password") );
+
             } catch (SQLException e) {
 
                 this.connection = null; //setting connection to null, so we can handle it.
@@ -54,7 +53,6 @@ public class DatabaseInteractor {
      * retrieves data from last N entries in the form of an array of arrays containing strings.
      */
     public List<RunData> retrieveEntries(){
-        System.out.println("attempting to retrieve entries.");
 
         ArrayList<RunData> arraylist = new ArrayList<>();
 

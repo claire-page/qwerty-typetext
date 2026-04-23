@@ -17,9 +17,9 @@ public class BasicLayoutBuilder implements Builder<Parent> {
     static Region results;
     static Region main;
 
-    public BasicLayoutBuilder(Control ctrl, DBControl dbControl){
-        this.control = ctrl;
-        this.dbControl = dbControl;
+    public BasicLayoutBuilder(Control ctrl, DBControl dbCtrl){
+        control = ctrl;
+        dbControl = dbCtrl;
 
     }
 
@@ -45,8 +45,8 @@ public class BasicLayoutBuilder implements Builder<Parent> {
         Region left = new MenuBuilder(HomeMenuOptions, Runnables).build();
 
         StackPane stack = new StackPane();
-        this.main = new MainView(control::drawPane, control::resetNewRun,  control::resetSameRun).build();
-        this.results = new ResultScreen(() -> Control.stringifyRunData(DBControl.getEntries()), BasicLayoutBuilder::showMain).build();
+        main = new MainView(control::drawPane, control::resetNewRun,  control::resetSameRun).build();
+        results = new ResultScreen(() -> Control.stringifyRunData(DBControl.getEntries()), BasicLayoutBuilder::showMain).build();
         stack.getChildren().addAll(results, main);
         stack.requestLayout();
         bp.setLeft(left);
@@ -62,13 +62,14 @@ public class BasicLayoutBuilder implements Builder<Parent> {
 
         if (main.isVisible()){
             main.setVisible(false);
+            control.setMainStatus(false);
             control.resetSameRun(); //making sure it's reset when the user returns.
-
         }
     }
     public static void showMain(){
         if (!main.isVisible()){
             main.setVisible(true);
+            control.setMainStatus(true);
         }
     }
 }
