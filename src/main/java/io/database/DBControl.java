@@ -9,10 +9,7 @@ public class DBControl {
 
     public static final int defaultNumberofEntries = 15;
 
-    public static DatabaseInteractor interactor;
-    public DBControl (){
-        interactor = new DatabaseInteractor(Control::displayDBAlert);
-    }
+    public static DatabaseInteractor interactor = new DatabaseInteractor(Control::displayDBAlert);;
 
     public static List<RunData> getEntries(){
 

@@ -17,9 +17,8 @@ public class BasicLayoutBuilder implements Builder<Parent> {
     static Region results;
     static Region main;
 
-    public BasicLayoutBuilder(Control ctrl, DBControl dbCtrl){
+    public BasicLayoutBuilder(Control ctrl){
         control = ctrl;
-        dbControl = dbCtrl;
 
     }
 

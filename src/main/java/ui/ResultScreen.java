@@ -8,7 +8,6 @@ import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.util.Builder;
@@ -61,11 +60,9 @@ public class ResultScreen implements Builder<Parent> {
 
         ToggleButton wpmFilterBtn = new ToggleButton("Words / minute");
         wpmFilterBtn.setUserData(QueryFilter.runWPM);
-        wpmFilterBtn.setBackground(Background.fill(Style.menuBkgrndPaint));
 
         ToggleButton cpsFilterBtn = new ToggleButton("Characters/ second");
         cpsFilterBtn.setUserData(QueryFilter.runCPM);
-        wpmFilterBtn.setBackground(Background.fill(Style.menuBkgrndPaint));
 
         ToggleButton defaultFilterBtn = new ToggleButton("Most Recent");
         defaultFilterBtn.setUserData(QueryFilter.noFilters);
@@ -76,8 +73,6 @@ public class ResultScreen implements Builder<Parent> {
         cpsFilterBtn.setToggleGroup(filtertoggles);
 
         defaultFilterBtn.setSelected(true);
-        System.out.println(filtertoggles.getSelectedToggle());
-
 
         Button applyFilterBtn = new Button("APPLY");
 
