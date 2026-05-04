@@ -35,7 +35,6 @@ public class ResultScreen implements Builder<Parent> {
         backtoMain = returnToMain;
     }
 
-
     @Override
     public Region build() {
 
