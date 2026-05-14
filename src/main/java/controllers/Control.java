@@ -29,7 +29,7 @@ public class Control {
 
     public Control() {
         run = new RunTracker();
-        expected = TextToType.getRandomtxt();
+        expected = TextToType.getRandomtxt(2);
         actual = "";
 
     }
@@ -185,7 +185,7 @@ public class Control {
 
         while (true) {
             //making sure the new text is different.
-            var newtxt = TextToType.getRandomtxt();
+            var newtxt = TextToType.getRandomtxt(2);
 
             if (!oldtxt.equals(newtxt)) {
                 expected = newtxt;

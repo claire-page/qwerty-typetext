@@ -3,67 +3,103 @@ package core;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class TextToType {
-    private static final String [] options = {("src/main/java/io/files/shelley.txt"),("src/main/java/io/files/jordan.txt"), ("src/main/java/io/files/text.txt"), ("src/main/java/io/files/bronte.txt"), ("src/main/java/io/files/NGGUU.txt"), ("src/main/java/io/files/thx.txt"), ("src/main/java/io/files/starwars.txt")};
+
+    static Random rand = new Random(); //whole class uses this
+    private static final String [] options = {
+            ("src/main/java/io/files/shelley.txt"),
+            ("src/main/java/io/files/jordan.txt"),
+            ("src/main/java/io/files/text.txt"),
+            ("src/main/java/io/files/bronte.txt"),
+            ("src/main/java/io/files/thx.txt"),
+            ("src/main/java/io/files/starwars.txt")
+    };
 
     /**
-     *
+     * @param statelength length of the 'state' used to predict the next word in a Markov chain.
      * @return a String of text read from a random file.
      */
-    //TODO:
-    //Create function that generates a random string of text :
-    // word count must be fixed no matter what. if I can get A-Z character count to be identical, that would be great too.
-    //i want to do this up front instead of potentially making the input delay worse.
-    // Maybe along the way I'll add a spinner, hm
 
+    public static String getRandomtxt(int statelength){
 
-    //generate plausible-sounding random text ->
-    //this is a markov chain/list/whatever.
-    // I want to end up with an array of key-pair value where the key is every distinct word
-    //and the value is an array containing every word that was located at indexofkey+1.
-    //how does this work for words with multiple occurences?
-    //HASHMAP! how did i forget about hashmaps??
-    public static String getRandomtxt(){
-        Random rand = new Random();
         int random = rand.nextInt(options.length); //number of files we have.
-        var chosen = options[random];
+//        var chosen = options[random];
+        var chosen = options[3]; //for testing purposes.
 
         try {
-            var corpus = (Files.readString(Paths.get(chosen))).split(" ");
+            var corpus = (Files.readString(Paths.get(chosen))).split(" "); //corpus is an array of strings split by spaces
+            corpus = Arrays.stream(corpus).filter(s-> !(s.equals("\n"))).toArray(String[]::new); //newlines were messing with things.
+
             var model = new HashMap<String, ArrayList<String>>();
 
-            for(int i = 1 ; i < corpus.length; i++){ //will test multiple state lengths for generation but 1 should be fine for now.
+            for(int i = statelength ; i < corpus.length; i++){ //last word is not included as a key, it doesn't have any 'following words'.
 
-                //populating the Markov Chain HashMap. This represents every word in the corpus
-                // and the words which immediately follow them in the text.
-                String currentword = corpus[i];
-                String preceding = String.join(" ", Arrays.copyOfRange(corpus, i-1, i)); //wow i miss python.
-                model.computeIfAbsent(preceding.toLowerCase(), k -> new ArrayList<>()).add(currentword);
-                //if the preceding word is absent from the HashMap, make a new entry with that key make its value a new list!
+                //populating the Markov Chain HashMap. Keys are for every word in the corpus that has words following it,
+                // and the values are a list of words which immediately follow that particular key in the text.
+                //if the preceding word is absent from the HashMap, make a new entry with that key and add the word that follows it to a new list!
                 //either way, the current word gets added to the list belonging to that key.
-                //super useful function
+                //the list may contain multiples of the same word, which is intended to preserve the probability of a particular following word being selected.
+
+                String currentword = corpus[i];
+                //creating a state from the last 'statelength' number of preceding words in
+                var preceding = Arrays.stream(corpus, i-statelength, i).collect(Collectors.joining(" "));
+                model.computeIfAbsent(preceding.toLowerCase(), k -> new ArrayList<>()).add(currentword);
+
             }
-            System.out.println(model);
+            var markovText = "";
 
-            var markovText = new ArrayList<String>();
-            int random2 = rand.nextInt(1, corpus.length);
+           var key = pickRandomFrom(corpus, 2);  //append a random 2-word key starter
+           markovText+=key;
 
-            markovText.add(String.join(" ", Arrays.copyOfRange(corpus, random2-1, random2)));  //append a random starter word.
+            for (int j = statelength; j <= 60; j++){
+                var splittext = markovText.split(" "); //do not like splitting this every time.
+                //within the loop, the key is going to be a
+                key = Arrays.stream(splittext, j-statelength, j).collect(Collectors.joining(" "));
 
-            for (int j = 0; j <= 30; j++){ //30 words is fine.
+                String randomNextWord = ""; //initializing to empty string.
 
-                String lastkey = markovText.getLast();
+                //checking if we're at the end of the corpus--the last word in the text may not be a key if it had no duplicates!
+                if (model.containsKey(key.toLowerCase())) {
+                    randomNextWord = " " + pickRandomFrom(model.get(key.toLowerCase())); //selecting random String from the key's corresponding list.
+                }
+                else {
+                    randomNextWord = pickRandomFrom(corpus, statelength);  //append a random 2-word key starter
+                }
+                markovText+=randomNextWord;
 
-                int rand4 = rand.nextInt(model.get(lastkey.toLowerCase()).size());
-                var randomNextWord = model.get(lastkey.toLowerCase()).get(rand4); //getting random following word for the key.
-                markovText.add(randomNextWord);
             }
-
-            return(String.join(" ",markovText));
+            return(markovText);
 
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
 
-    }}
+//helper functions for random selection of item in a collection. Honestly surprised that's not a built-in function.
+
+    /**
+     *
+     * @param stringList - a list of Strings.
+     * @return a randomly selected String from the provided String list
+     */
+    public static String pickRandomFrom(List<String> stringList) {
+        int randy = rand.nextInt(stringList.size());
+        return(stringList.get(randy));
+
+    }
+
+    /**
+     *
+     * @param stringArray - an array of Strings
+     * @return a randomly selected String from the provided String array
+     */
+    public static String pickRandomFrom(String[] stringArray, int statesize) {
+        int randy = rand.nextInt(statesize, stringArray.length);
+        //lower bound is state size (so we don't go out of range left)
+        //upped bounf is length of array (so we don't go out of range right)
+        return(Arrays.stream(stringArray, randy-statesize, randy).collect(Collectors.joining(" ")));
+    }
+
+}
