@@ -55,6 +55,7 @@ public class DatabaseInteractor {
     public List<RunData> retrieveEntries(){
 
         ArrayList<RunData> arraylist = new ArrayList<>();
+        if (isConnectionValid()){
 
             try {
                 PreparedStatement s = this.connection.prepareStatement(this.executableSQL);
@@ -73,7 +74,8 @@ public class DatabaseInteractor {
 
             } catch (SQLException e) {
                 onError.run();
-            }
+            }}
+
 
          return(arraylist.stream().toList());
     }

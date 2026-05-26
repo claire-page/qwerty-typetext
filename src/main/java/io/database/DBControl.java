@@ -12,7 +12,6 @@ public class DBControl {
     public static DatabaseInteractor interactor = new DatabaseInteractor(Control::displayDBAlert);;
 
     public static List<RunData> getEntries(){
-
         return (interactor.retrieveEntries());
     }
 

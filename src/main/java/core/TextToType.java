@@ -30,7 +30,7 @@ public class TextToType {
 
         try {
             var corpus = (Files.readString(Paths.get(chosen))).split(" "); //corpus is an array of strings split by spaces
-            corpus = Arrays.stream(corpus).filter(s-> !(s.equals("\n"))).toArray(String[]::new); //newlines were messing with things.
+            corpus = Arrays.stream(corpus).filter(s-> !(s.equals("\\n")||s.equals("\\r"))).toArray(String[]::new); //newlines were messing with things.
 
             var model = generateMarkovModel(statelength, corpus);
 
